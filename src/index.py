@@ -76,9 +76,5 @@ def main():
     virheellinen_lisaaminen(mehua, olutta)
     virheellinen_ottaminen(mehua, olutta)
 
-    print()
-    print()
-    print()
-
 if __name__ == "__main__":
     main()
