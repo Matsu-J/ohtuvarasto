@@ -3,7 +3,7 @@ from varasto import Varasto
 
 def main():
     mehua = Varasto(100.0)
-    olutta = Varasto(100.0, 20.2)
+    olutta = Varasto(100.0, 20.2, 1, 2, 3, 4)
 
     print("Luonnin jälkeen:")
     print(f"Mehuvarasto: {mehua}")
@@ -55,4 +55,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+     main()
