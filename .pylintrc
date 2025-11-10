@@ -25,6 +25,8 @@ ignore-long-lines=^\s*(# )?<?https?://\S+>?$
 
 [REFACTORING]
 
+max-nested-blocks=2
+
 [DESIGN]
 
 max-statements=10
