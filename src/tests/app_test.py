@@ -8,6 +8,7 @@ class TestApp(unittest.TestCase):
         self.client = app.test_client()
         manager._warehouses.clear()
         manager._next_id = 1
+        manager._next_item_id = 1
 
     def test_index_empty(self):
         response = self.client.get('/')
@@ -79,3 +80,42 @@ class TestApp(unittest.TestCase):
         self.assertEqual(response.status_code, 302)
         warehouse = manager.get_warehouse(1)
         self.assertAlmostEqual(warehouse['varasto'].saldo, 25)
+
+    def test_edit_warehouse_capacity(self):
+        manager.add_warehouse('Test', 100, 50)
+        response = self.client.post(
+            '/warehouse/1/edit',
+            data={'name': 'Test', 'capacity': '200'}
+        )
+        self.assertEqual(response.status_code, 302)
+        warehouse = manager.get_warehouse(1)
+        self.assertAlmostEqual(warehouse['varasto'].tilavuus, 200)
+
+    def test_add_named_item(self):
+        manager.add_warehouse('Test', 100, 0)
+        response = self.client.post(
+            '/warehouse/1/items/add',
+            data={'item_name': 'Apples', 'item_amount': '10'}
+        )
+        self.assertEqual(response.status_code, 302)
+        warehouse = manager.get_warehouse(1)
+        self.assertEqual(len(warehouse['stored_items']), 1)
+
+    def test_edit_named_item(self):
+        manager.add_warehouse('Test', 100, 0)
+        manager.add_item(1, 'Apples', 10)
+        response = self.client.post(
+            '/warehouse/1/items/1/edit',
+            data={'item_name': 'Oranges', 'item_amount': '20'}
+        )
+        self.assertEqual(response.status_code, 302)
+        item = manager.get_item(1, 1)
+        self.assertEqual(item['name'], 'Oranges')
+        self.assertAlmostEqual(item['amount'], 20)
+
+    def test_delete_named_item(self):
+        manager.add_warehouse('Test', 100, 0)
+        manager.add_item(1, 'Apples', 10)
+        response = self.client.post('/warehouse/1/items/1/delete')
+        self.assertEqual(response.status_code, 302)
+        self.assertIsNone(manager.get_item(1, 1))

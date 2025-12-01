@@ -10,6 +10,10 @@
         <label for="name">Warehouse Name</label>
         <input type="text" id="name" name="name" required value="{{ warehouse.name }}">
     </div>
+    <div class="form-group">
+        <label for="capacity">Maximum Capacity</label>
+        <input type="number" id="capacity" name="capacity" step="0.01" min="0.01" required value="{{ warehouse.varasto.tilavuus }}">
+    </div>
     <div class="actions">
         <button type="submit" class="btn btn-success">Save Changes</button>
         <a href="{{ url_for('view_warehouse', warehouse_id=warehouse.id) }}" class="btn btn-secondary">Cancel</a>
