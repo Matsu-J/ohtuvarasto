@@ -23,8 +23,7 @@ class TestApp(unittest.TestCase):
     def test_add_warehouse_post(self):
         data = {
             'name': 'Test Warehouse',
-            'capacity': '100',
-            'initial_balance': '50'
+            'capacity': '100'
         }
         response = self.client.post('/warehouse/add', data=data)
         self.assertEqual(response.status_code, 302)
@@ -33,7 +32,7 @@ class TestApp(unittest.TestCase):
         self.assertIn(b'Test Warehouse', response.data)
 
     def test_view_warehouse(self):
-        manager.add_warehouse('Test', 100, 50)
+        manager.add_warehouse('Test', 100, 0)
         response = self.client.get('/warehouse/1')
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Test', response.data)
@@ -43,46 +42,26 @@ class TestApp(unittest.TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_edit_warehouse_get(self):
-        manager.add_warehouse('Test', 100, 50)
+        manager.add_warehouse('Test', 100, 0)
         response = self.client.get('/warehouse/1/edit')
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Edit Warehouse', response.data)
 
     def test_edit_warehouse_post(self):
-        manager.add_warehouse('Test', 100, 50)
+        manager.add_warehouse('Test', 100, 0)
         response = self.client.post('/warehouse/1/edit', data={'name': 'New'})
         self.assertEqual(response.status_code, 302)
         warehouse = manager.get_warehouse(1)
         self.assertEqual(warehouse['name'], 'New')
 
     def test_delete_warehouse(self):
-        manager.add_warehouse('Test', 100, 50)
+        manager.add_warehouse('Test', 100, 0)
         response = self.client.post('/warehouse/1/delete')
         self.assertEqual(response.status_code, 302)
         self.assertIsNone(manager.get_warehouse(1))
 
-    def test_add_items(self):
-        manager.add_warehouse('Test', 100, 0)
-        response = self.client.post(
-            '/warehouse/1/add-items',
-            data={'amount': '25'}
-        )
-        self.assertEqual(response.status_code, 302)
-        warehouse = manager.get_warehouse(1)
-        self.assertAlmostEqual(warehouse['varasto'].saldo, 25)
-
-    def test_take_items(self):
-        manager.add_warehouse('Test', 100, 50)
-        response = self.client.post(
-            '/warehouse/1/take-items',
-            data={'amount': '25'}
-        )
-        self.assertEqual(response.status_code, 302)
-        warehouse = manager.get_warehouse(1)
-        self.assertAlmostEqual(warehouse['varasto'].saldo, 25)
-
     def test_edit_warehouse_capacity(self):
-        manager.add_warehouse('Test', 100, 50)
+        manager.add_warehouse('Test', 100, 0)
         response = self.client.post(
             '/warehouse/1/edit',
             data={'name': 'Test', 'capacity': '200'}
@@ -100,6 +79,7 @@ class TestApp(unittest.TestCase):
         self.assertEqual(response.status_code, 302)
         warehouse = manager.get_warehouse(1)
         self.assertEqual(len(warehouse['stored_items']), 1)
+        self.assertAlmostEqual(warehouse['varasto'].saldo, 10)
 
     def test_edit_named_item(self):
         manager.add_warehouse('Test', 100, 0)
@@ -112,6 +92,8 @@ class TestApp(unittest.TestCase):
         item = manager.get_item(1, 1)
         self.assertEqual(item['name'], 'Oranges')
         self.assertAlmostEqual(item['amount'], 20)
+        warehouse = manager.get_warehouse(1)
+        self.assertAlmostEqual(warehouse['varasto'].saldo, 20)
 
     def test_delete_named_item(self):
         manager.add_warehouse('Test', 100, 0)
@@ -119,3 +101,5 @@ class TestApp(unittest.TestCase):
         response = self.client.post('/warehouse/1/items/1/delete')
         self.assertEqual(response.status_code, 302)
         self.assertIsNone(manager.get_item(1, 1))
+        warehouse = manager.get_warehouse(1)
+        self.assertAlmostEqual(warehouse['varasto'].saldo, 0)

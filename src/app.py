@@ -27,9 +27,8 @@ def add_warehouse():
     if request.method == 'POST':
         name = request.form.get('name', '').strip()
         capacity = safe_float(request.form.get('capacity', 0))
-        initial_balance = safe_float(request.form.get('initial_balance', 0))
         if name and capacity > 0:
-            manager.add_warehouse(name, capacity, initial_balance)
+            manager.add_warehouse(name, capacity, 0)
         return redirect(url_for('index'))
     return render_template('add_warehouse.html')
 
@@ -66,24 +65,6 @@ def delete_warehouse(warehouse_id):
     """Delete a warehouse."""
     manager.delete_warehouse(warehouse_id)
     return redirect(url_for('index'))
-
-
-@app.route('/warehouse/<int:warehouse_id>/add-items', methods=['POST'])
-def add_items(warehouse_id):
-    """Add items to a warehouse."""
-    amount = safe_float(request.form.get('amount', 0))
-    if amount > 0:
-        manager.add_to_warehouse(warehouse_id, amount)
-    return redirect(url_for('view_warehouse', warehouse_id=warehouse_id))
-
-
-@app.route('/warehouse/<int:warehouse_id>/take-items', methods=['POST'])
-def take_items(warehouse_id):
-    """Take items from a warehouse."""
-    amount = safe_float(request.form.get('amount', 0))
-    if amount > 0:
-        manager.take_from_warehouse(warehouse_id, amount)
-    return redirect(url_for('view_warehouse', warehouse_id=warehouse_id))
 
 
 @app.route('/warehouse/<int:warehouse_id>/items/add', methods=['POST'])

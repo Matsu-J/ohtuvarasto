@@ -49,25 +49,14 @@ class WarehouseManager:
             return True
         return False
 
-    def add_to_warehouse(self, warehouse_id, amount):
-        """Add items to a warehouse."""
-        warehouse = self.get_warehouse(warehouse_id)
-        if warehouse:
-            warehouse['varasto'].lisaa_varastoon(amount)
-            return True
-        return False
-
-    def take_from_warehouse(self, warehouse_id, amount):
-        """Take items from a warehouse."""
-        warehouse = self.get_warehouse(warehouse_id)
-        if warehouse:
-            return warehouse['varasto'].ota_varastosta(amount)
-        return 0.0
-
     def add_item(self, warehouse_id, item_name, amount):
-        """Add a named item to a warehouse."""
+        """Add a named item to a warehouse, reducing available capacity."""
         warehouse = self.get_warehouse(warehouse_id)
         if warehouse and item_name and amount > 0:
+            available = warehouse['varasto'].paljonko_mahtuu()
+            if amount > available:
+                return None
+            warehouse['varasto'].lisaa_varastoon(amount)
             item_id = self._next_item_id
             warehouse['stored_items'][item_id] = {
                 'id': item_id,
@@ -86,20 +75,32 @@ class WarehouseManager:
         return None
 
     def update_item(self, warehouse_id, item_id, name=None, amount=None):
-        """Update an item's name and/or amount."""
+        """Update an item's name and/or amount, adjusting warehouse balance."""
         warehouse = self.get_warehouse(warehouse_id)
         if warehouse and item_id in warehouse['stored_items']:
+            item = warehouse['stored_items'][item_id]
             if name is not None:
-                warehouse['stored_items'][item_id]['name'] = name
+                item['name'] = name
             if amount is not None and amount >= 0:
-                warehouse['stored_items'][item_id]['amount'] = amount
+                old_amount = item['amount']
+                diff = amount - old_amount
+                if diff > 0:
+                    available = warehouse['varasto'].paljonko_mahtuu()
+                    if diff > available:
+                        return False
+                    warehouse['varasto'].lisaa_varastoon(diff)
+                elif diff < 0:
+                    warehouse['varasto'].ota_varastosta(-diff)
+                item['amount'] = amount
             return True
         return False
 
     def delete_item(self, warehouse_id, item_id):
-        """Delete an item from a warehouse."""
+        """Delete an item from a warehouse, returning capacity."""
         warehouse = self.get_warehouse(warehouse_id)
         if warehouse and item_id in warehouse['stored_items']:
+            item = warehouse['stored_items'][item_id]
+            warehouse['varasto'].ota_varastosta(item['amount'])
             del warehouse['stored_items'][item_id]
             return True
         return False

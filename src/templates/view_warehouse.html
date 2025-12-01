@@ -8,11 +8,11 @@
 <div class="warehouse-card">
     <div class="warehouse-info">
         <div class="info-item">
-            <div class="info-label">Current Balance</div>
+            <div class="info-label">Used Capacity</div>
             <div class="info-value">{{ "%.2f"|format(warehouse.varasto.saldo) }}</div>
         </div>
         <div class="info-item">
-            <div class="info-label">Capacity</div>
+            <div class="info-label">Total Capacity</div>
             <div class="info-value">{{ "%.2f"|format(warehouse.varasto.tilavuus) }}</div>
         </div>
         <div class="info-item">
@@ -24,24 +24,6 @@
         {% set fill_percent = (warehouse.varasto.saldo / warehouse.varasto.tilavuus * 100) if warehouse.varasto.tilavuus > 0 else 0 %}
         <div class="progress-bar-fill" style="width: {{ fill_percent }}%"></div>
     </div>
-</div>
-
-<h3>Manage Contents</h3>
-
-<div class="warehouse-card">
-    <h4>Add Items</h4>
-    <form action="{{ url_for('add_items', warehouse_id=warehouse.id) }}" method="POST" class="inline-form">
-        <input type="number" name="amount" step="0.01" min="0.01" required placeholder="Amount">
-        <button type="submit" class="btn btn-success">Add to Warehouse</button>
-    </form>
-</div>
-
-<div class="warehouse-card">
-    <h4>Take Items</h4>
-    <form action="{{ url_for('take_items', warehouse_id=warehouse.id) }}" method="POST" class="inline-form">
-        <input type="number" name="amount" step="0.01" min="0.01" required placeholder="Amount">
-        <button type="submit" class="btn btn-primary">Take from Warehouse</button>
-    </form>
 </div>
 
 <h3>Items in Storage</h3>

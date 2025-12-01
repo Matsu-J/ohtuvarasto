@@ -11,11 +11,11 @@
         <h3>{{ warehouse.name }}</h3>
         <div class="warehouse-info">
             <div class="info-item">
-                <div class="info-label">Current Balance</div>
+                <div class="info-label">Used Capacity</div>
                 <div class="info-value">{{ "%.2f"|format(warehouse.varasto.saldo) }}</div>
             </div>
             <div class="info-item">
-                <div class="info-label">Capacity</div>
+                <div class="info-label">Total Capacity</div>
                 <div class="info-value">{{ "%.2f"|format(warehouse.varasto.tilavuus) }}</div>
             </div>
             <div class="info-item">
