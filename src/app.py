@@ -6,6 +6,14 @@ app = Flask(__name__)
 manager = WarehouseManager()
 
 
+def safe_float(value, default=0.0):
+    """Safely convert a value to float, returning default on error."""
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return default
+
+
 @app.route('/')
 def index():
     """Display all warehouses."""
@@ -18,8 +26,8 @@ def add_warehouse():
     """Add a new warehouse."""
     if request.method == 'POST':
         name = request.form.get('name', '').strip()
-        capacity = float(request.form.get('capacity', 0))
-        initial_balance = float(request.form.get('initial_balance', 0))
+        capacity = safe_float(request.form.get('capacity', 0))
+        initial_balance = safe_float(request.form.get('initial_balance', 0))
         if name and capacity > 0:
             manager.add_warehouse(name, capacity, initial_balance)
         return redirect(url_for('index'))
@@ -61,7 +69,7 @@ def delete_warehouse(warehouse_id):
 @app.route('/warehouse/<int:warehouse_id>/add-items', methods=['POST'])
 def add_items(warehouse_id):
     """Add items to a warehouse."""
-    amount = float(request.form.get('amount', 0))
+    amount = safe_float(request.form.get('amount', 0))
     if amount > 0:
         manager.add_to_warehouse(warehouse_id, amount)
     return redirect(url_for('view_warehouse', warehouse_id=warehouse_id))
@@ -70,11 +78,11 @@ def add_items(warehouse_id):
 @app.route('/warehouse/<int:warehouse_id>/take-items', methods=['POST'])
 def take_items(warehouse_id):
     """Take items from a warehouse."""
-    amount = float(request.form.get('amount', 0))
+    amount = safe_float(request.form.get('amount', 0))
     if amount > 0:
         manager.take_from_warehouse(warehouse_id, amount)
     return redirect(url_for('view_warehouse', warehouse_id=warehouse_id))
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
